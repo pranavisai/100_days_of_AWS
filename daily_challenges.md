@@ -3,7 +3,7 @@
 2. To check all pairs in the region: aws ec2 describe-key-pairs --region us-east-1 --query 'KeyPairs[*].KeyName'  --output table
 3. To check the sepcific key: aws ec2 describe-key-pairs   --key-names datacenter-kp  --region us-east-1
 
-# create a security group and add the inbound rule
+# Create a security group and add the inbound rule
 1. Verify the VPC ID: aws ec2 describe-vpcs \
   --filters "Name=isDefault,Values=true" \
   --query "Vpcs[0].VpcId" \
@@ -30,4 +30,21 @@
   --group-names devops-sg \
   --region us-east-1
 
-#
+# Create a subnet
+1. Find the default VPC ID in the region: aws ec2 describe-vpcs \
+  --filters "Name=isDefault,Values=true" \
+  --query "Vpcs[0].VpcId" \
+  --output text \
+  --region us-east-1
+2. Create a subnet with a CIDR block to not overlap with the others: aws ec2 create-subnet \
+  --vpc-id <VPC_ID> \
+  --cidr-block 172.31.100.0/24 \
+  --availability-zone us-east-1a \
+  --region us-east-1
+3. naming the subnet using the subnet-id: aws ec2 create-tags \
+  --resources <SUBNET_ID> \
+  --tags Key=Name,Value=xfusion-subnet \
+  --region us-east-1
+4. Verifying the subnet: aws ec2 describe-subnets \
+  --filters "Name=tag:Name,Values=xfusion-subnet" \
+  --region us-east-1
