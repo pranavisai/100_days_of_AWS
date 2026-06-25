@@ -74,3 +74,34 @@
   --query "Volumes[*].[VolumeId,Size,VolumeType,AvailabilityZone]" \
   --output table \
   --region us-east-1
+
+## Create and launch EC2 instance
+1. Create the RSA key pair first -> aws ec2 create-key-pair \
+  --key-name xfusion-kp \
+  --key-type rsa \
+  --query 'KeyMaterial' \
+  --output text \
+  --region us-east-1 > xfusion-kp.pem
+2. Secure the private key -> chmod 400 xfusion-kp.pem
+3. Find the AMI ID (as given in this example) -> aws ssm get-parameters \
+  --names /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 \
+  --query "Parameters[0].Value" \
+  --output text \
+  --region us-east-1
+4. Find the default security group ID -> aws ec2 describe-security-groups \
+  --filters Name=group-name,Values=default \
+  --query "SecurityGroups[0].GroupId" \
+  --output text \
+  --region us-east-1
+5. Launch the EC2 instance -> aws ec2 run-instances \
+  --image-id <AMI_ID> \
+  --instance-type t2.micro \
+  --key-name xfusion-kp \
+  --security-group-ids <SECURITY_GROUP_ID> \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=xfusion-ec2}]' \
+  --region us-east-1
+6. Verify -> aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=xfusion-ec2" \
+  --query "Reservations[].Instances[].{ID:InstanceId,State:State.Name,Type:InstanceType,Key:KeyName}" \
+  --output table \
+  --region us-east-1
