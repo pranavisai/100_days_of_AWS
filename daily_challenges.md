@@ -105,3 +105,31 @@
   --query "Reservations[].Instances[].{ID:InstanceId,State:State.Name,Type:InstanceType,Key:KeyName}" \
   --output table \
   --region us-east-1
+
+## Changing the EC2 instance type 
+1. Find the instance ID with name -> aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=nautilus-ec2" \
+  --query "Reservations[].Instances[].InstanceId" \
+  --output text \
+  --region us-east-1
+2. Stop the instance -> aws ec2 stop-instances \
+  --instance-ids <INSTANCE_ID> \
+  --region us-east-1
+3. Wait for the instance to stop -> aws ec2 wait instance-stopped \
+  --instance-ids <INSTANCE_ID> \
+  --region us-east-1
+4. Change the instance type -> aws ec2 modify-instance-attribute \
+  --instance-id <INSTANCE_ID> \
+  --instance-type "{\"Value\":\"t2.nano\"}" \
+  --region us-east-1
+5. Start the instance -> aws ec2 start-instances \
+  --instance-ids <INSTANCE_ID> \
+  --region us-east-1
+6. Wait until it's running -> aws ec2 wait instance-running \
+  --instance-ids <INSTANCE_ID> \
+  --region us-east-1
+7. Verify -> aws ec2 describe-instances \
+  --instance-ids <INSTANCE_ID> \
+  --query "Reservations[].Instances[].{State:State.Name,Type:InstanceType}" \
+  --output table \
+  --region us-east-1
