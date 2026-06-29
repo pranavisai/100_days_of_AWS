@@ -133,3 +133,19 @@
   --query "Reservations[].Instances[].{State:State.Name,Type:InstanceType}" \
   --output table \
   --region us-east-1
+
+## Enable the stop protection for an instance
+1. This is done to prevent accidental stopping of an instance. 
+2. Example to get instance ID -> aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=datacenter-ec2" \
+  --query "Reservations[].Instances[].InstanceId" \
+  --output text \
+  --region us-east-1
+3. Enable stop protection -> aws ec2 modify-instance-attribute \
+  --instance-id <instance-id> \
+  --disable-api-stop "{\"Value\":true}" \
+  --region us-east-1
+4. Verify the stop protection -> aws ec2 describe-instance-attribute \
+  --instance-id <instance-id> \
+  --attribute disableApiStop \
+  --region us-east-1
