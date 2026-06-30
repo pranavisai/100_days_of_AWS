@@ -149,3 +149,19 @@
   --instance-id <instance-id> \
   --attribute disableApiStop \
   --region us-east-1
+
+## Enable the termination protection for an instance
+1. This is done to prevent terminating (deleting) the instance.
+2. Example to get instance ID -> aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=devops-ec2" \
+  --query "Reservations[].Instances[].InstanceId" \
+  --output text \
+  --region us-east-1
+3. Enable termination protection -> aws ec2 modify-instance-attribute \
+  --instance-id i-0fb44451a1bbf9b3a \
+  --disable-api-termination "{\"Value\":true}" \
+  --region us-east-1
+4. Verify the termination protection -> aws ec2 describe-instance-attribute \
+  --instance-id i-0fb44451a1bbf9b3a \
+  --attribute disableApiTermination \
+  --region us-east-1
