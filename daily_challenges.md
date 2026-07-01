@@ -165,3 +165,24 @@
   --instance-id i-0fb44451a1bbf9b3a \
   --attribute disableApiTermination \
   --region us-east-1
+
+## Attach EC2 instance to elastic-ip
+1. Getting the EC2 instance ID -> aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=<ec2-instance-name>" \
+  --query "Reservations[].Instances[].InstanceId" \
+  --output text \
+  --region us-east-1
+2. Get the Elastic IP allocation ID -> aws ec2 describe-addresses \
+  --filters "Name=tag:Name,Values=<elastic-ip-name>" \
+  --query "Addresses[].AllocationId" \
+  --output text \
+  --region us-east-1
+3. Associate -> aws ec2 associate-address \
+  --instance-id <ec2-instance-id> \
+  --allocation-id <elastic-ip-allocation-id> \
+  --region us-east-1
+4. Verify -> aws ec2 describe-addresses \
+  --allocation-ids <allocation-id> \
+  --query "Addresses[].{PublicIP:PublicIp,Instance:InstanceId}" \
+  --output table \
+  --region us-east-1
