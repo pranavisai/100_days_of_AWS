@@ -186,3 +186,31 @@
   --query "Addresses[].{PublicIP:PublicIp,Instance:InstanceId}" \
   --output table \
   --region us-east-1
+
+## Attach the network interface to the EC2 instance
+1. Instance ID -> aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=xfusion-ec2" \
+  --query "Reservations[].Instances[].InstanceId" \
+  --output text \
+  --region us-east-1
+2. Network Interface ID (ENI ID) -> aws ec2 describe-network-interfaces \
+  --filters "Name=tag:Name,Values=xfusion-eni" \
+  --query "NetworkInterfaces[].NetworkInterfaceId" \
+  --output text \
+  --region us-east-1
+3. Check if instance is running -> aws ec2 describe-instance-status \
+  --instance-ids <INSTANCE_ID> \
+  --query "InstanceStatuses[].{Instance:InstanceStatus.Status,System:SystemStatus.Status}" \
+  --output table \
+  --region us-east-1
+4. Device index 0 is the Primary network interface (created automatically when the instance launches). The first additional network interface should be connected to device index 1.
+   Attach the network interface to the instance -> aws ec2 attach-network-interface \
+  --network-interface-id <ENI_ID> \
+  --instance-id <INSTANCE_ID> \
+  --device-index 1 \
+  --region us-east-1
+7. Verify -> aws ec2 describe-network-interfaces \
+  --network-interface-ids <ENI_ID> \
+  --query "NetworkInterfaces[].{Status:Status,AttachmentStatus:Attachment.Status,InstanceId:Attachment.InstanceId}" \
+  --output table \
+  --region us-east-1
